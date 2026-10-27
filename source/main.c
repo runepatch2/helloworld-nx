@@ -20,6 +20,15 @@ void printControls(void)
     printf("Press 'X' to clear screen and print these controls.\n");
 }
 
+int validateFileOpen(FILE *gfp)
+{
+    if (gfp == NULL) {
+        perror("fopen broke lol.\n");
+        return 1;
+    }
+    return 0;
+}
+
 // Main program entrypoint
 int main(int argc, char* argv[])
 {
@@ -42,15 +51,34 @@ int main(int argc, char* argv[])
     printf("And Hello, World!\n");
     printControls();
 
-    FILE* fp;
-    fp = fopen("output.txt", "a+");
-    if (fp == NULL) {
-        perror("fileopen broke lol.\n");
-        return 1;
-    }
-
-    int count = 1;
+    int count;
     char s[1024];
+
+    FILE* fp;
+    FILE* cfp;
+    fp = fopen("output.txt", "a+");
+    validateFileOpen(fp);
+
+    // must open file as read first before doing checks!!!
+    cfp = fopen("count.txt", "r+");
+    validateFileOpen(cfp);
+    // then check if it's empty
+    bool countEmpty = ((fgetc(cfp)) == EOF);
+    // if it is empty, set the count to 1 and write that into the file
+    if (countEmpty) {
+        freopen("count.txt", "w+", cfp);
+        count = 1;
+        fputc(count, cfp);
+    }
+    // otherwise ensure that rather than overwriting current text, meaning open file as a+ to keep what's in it
+    // then store count as the first character to use later
+    // next every time the user adds a "Hello, World!" increase count by 1, erase what's currently in the file,
+    // and add the current count back to the file
+    
+    else {
+        freopen("count.txt", "a+", cfp);
+        count = fgetc(cfp);
+    }
 
     // Main loop
     while (appletMainLoop())
@@ -70,6 +98,9 @@ int main(int argc, char* argv[])
         if (kDown & HidNpadButton_L) {
             fprintf(fp, "\n%d | Hello, World!", count);
             count++;
+            freopen("count.txt", "w+", cfp);
+            freopen("count.txt", "a+", cfp);
+            fputc(count, cfp);
         }
 
         if (kDown & HidNpadButton_R) {
@@ -82,7 +113,8 @@ int main(int argc, char* argv[])
 
         if (kDown & HidNpadButton_Minus) {
             freopen("output.txt", "w+", fp);
-            count = 1;
+            freopen("count.txt", "w+", cfp);
+            putc(1, cfp);
         }
 
         if (kDown & HidNpadButton_X) {
@@ -95,6 +127,8 @@ int main(int argc, char* argv[])
     }
 
     // Deinitialize and clean up resources used by the console (important!)
+    fclose(fp);
+    fclose(cfp);
     consoleExit(NULL);
     return 0;
 }
