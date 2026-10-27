@@ -60,7 +60,11 @@ int main(int argc, char* argv[])
     validateFileOpen(fp);
 
     // must open file as read first before doing checks!!!
-    cfp = fopen("count.txt", "r+");
+    cfp = fopen("count.txt", "a+");
+
+    validateFileOpen(cfp);
+    cfp = freopen("count.txt", "r+", cfp);
+    (cfp = freopen("count.txt", "r+", cfp));
     validateFileOpen(cfp);
     // then check if it's empty
     bool countEmpty = ((fgetc(cfp)) == EOF);
@@ -86,10 +90,11 @@ int main(int argc, char* argv[])
         // newly pressed in this frame compared to the previous one
         u64 kDown = padGetButtonsDown(&pad);
 
-        if (kDown & HidNpadButton_Plus)
+        if (kDown & HidNpadButton_Plus) {
+            fclose(fp);
+            fclose(cfp);
             break; // break in order to return to hbmenu
-
-        // Your code goes here
+        }
 
         if (kDown & HidNpadButton_L) {
             fprintf(fp, "\n%d | Hello, World!", count);
@@ -111,6 +116,7 @@ int main(int argc, char* argv[])
             freopen("output.txt", "w+", fp);
             freopen("count.txt", "w+", cfp);
             putc(1, cfp);
+            count = 1;
         }
 
         if (kDown & HidNpadButton_X) {
@@ -123,8 +129,7 @@ int main(int argc, char* argv[])
     }
 
     // Deinitialize and clean up resources used by the console (important!)
-    fclose(fp);
-    fclose(cfp);
+
     consoleExit(NULL);
     return 0;
 }
