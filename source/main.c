@@ -70,10 +70,6 @@ int main(int argc, char* argv[])
         count = 1;
         fputc(count, cfp);
     }
-    // otherwise ensure that rather than overwriting current text, meaning open file as a+ to keep what's in it
-    // then store count as the first character to use later
-    // next every time the user adds a "Hello, World!" increase count by 1, erase what's currently in the file,
-    // and add the current count back to the file
     
     else {
         freopen("count.txt", "a+", cfp);
