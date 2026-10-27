@@ -42,6 +42,9 @@ BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data
 INCLUDES	:=	include
+APP_AUTHOR = "runepatch"
+APP_VERSION = 1.0.0
+APP_TITLE = helloworld_with_count
 #ROMFS	:=	romfs
 
 #---------------------------------------------------------------------------------
